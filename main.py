@@ -3,7 +3,6 @@ from searchAlgos import AStar, BFS, DFS
 from mazeGenerator import iterativeBacktracking, iterativeBacktrackingWithLoops
 import pygame
 import pygame_gui
-from mazeGen import genMaze
 
 pygame.init()
 
