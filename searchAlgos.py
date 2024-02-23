@@ -1,4 +1,4 @@
-from queue import Queue, PriorityQueue
+from queue import Queue, LifoQueue, PriorityQueue
 import pygame
 import time
 
@@ -133,6 +133,55 @@ def BFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
                 queue.put(neighbour)
                 visited.add(neighbour)
                 # mark the neighbour as the current cell and visualise it
+                cameFrom[neighbour] = current
+                neighbour.setEdge(visualiseAlgorithm)
+
+        if current != start:
+            current.setClosed(visualiseAlgorithm)
+
+    # if the goal cannot be reached -- this should not occur
+    return False
+
+def DFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
+    """
+    function to implement Depth-First Search algorithm
+    """
+    # stack for DFS
+    startTime = time.time()
+
+    stack = LifoQueue()
+    stack.put(start)
+    # dictionary to redraw path when goal found
+    cameFrom = {}
+    # set to keep track of visited nodes
+    visited = {start}
+
+    while not stack.empty():
+        # if user quits while algo is running ensure no crashes occur
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        current = stack.get()
+        # if the goal has been reached
+        if current == end:
+            gridDraw()
+            # recolor the best path
+            redrawPath(cameFrom, current, gridDraw, AnimatePath)
+            end.setGoal(visualiseAlgorithm)
+            start.setStart(visualiseAlgorithm)
+            elapsed_time = time.time() - startTime
+            # print stats
+            print(f"DFS Algorithm - Visited Cells: {len(visited)}, Shortest Path Length: {len(constructPath(cameFrom, start, end)) if current == end else 0}, Elapsed Time: {elapsed_time} seconds")
+            return True
+        # iterate through the neighbors of the current node
+        for neighbour in current.neighbours:
+            # if the neighbour has not been visited
+            if neighbour not in visited:
+                # add neighbour to the stack and the visited list
+                stack.put(neighbour)
+                visited.add(neighbour)
+                # mark the neighbour as the current cell and visualize it
                 cameFrom[neighbour] = current
                 neighbour.setEdge(visualiseAlgorithm)
 

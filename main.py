@@ -1,8 +1,9 @@
 from grid import Grid
-from searchAlgos import AStar, BFS
-from mazeGenerator import iterativeBacktracking
+from searchAlgos import AStar, BFS, DFS
+from mazeGenerator import iterativeBacktracking, iterativeBacktrackingWithLoops
 import pygame
 import pygame_gui
+from mazeGen import genMaze
 
 pygame.init()
 
@@ -18,18 +19,20 @@ manager = pygame_gui.UIManager((1200, 700))
 bfs_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 150), (200, 50)), text='BFS', manager=manager)
 dfs_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 250), (200, 50)), text='DFS', manager=manager)
 a_star_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 350), (200, 50)), text='A*', manager=manager)
+generate_iterative_loops_maze_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 100), (200, 50)), text='Generate Maze with Looping', manager=manager)
 generate_maze_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 50), (200, 50)), text='Generate Maze', manager=manager)
 value_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 450), (200, 50)), text='MDP Value Iteration', manager=manager)
 policy_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 550), (200, 50)), text='MDP Policy Iteration', manager=manager)
 clear_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 650), (200, 50)), text='Clear', manager=manager)
 
 # define the number of rows in the grid
-rows = 24
+rows = 25
+columns = rows
 
 clock = pygame.time.Clock()
 
 # create a grid object to handle the grid state 
-gridObj = Grid(rows, width, window)
+gridObj = Grid(rows, columns, width, window)
 gridObj.createGrid()
 
 # initialise variables to be used
@@ -43,7 +46,7 @@ clock = pygame.time.Clock()
 isRunning = True
 
 # set the background to white
-window.blit(background, (0, 0))
+#window.blit(background, (0, 0))
 
 # while the app is active
 while isRunning:
@@ -82,8 +85,12 @@ while isRunning:
                 else:
                     print("Please set both start and goal cells within the grid boundaries.")
             # DFS
-            elif event.ui_element == dfs_button:
-                print("DFS button pressed")
+            if event.ui_element == dfs_button:
+                if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
+                    [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
+                    DFS(lambda: gridObj.draw(), start, goal, visualiseAlgorithm, AnimatePath)
+                else:
+                    print("Please set both start and goal cells within the grid boundaries.")
             # A*
             elif event.ui_element == a_star_button:
                 print("A* button pressed")
@@ -95,6 +102,9 @@ while isRunning:
             # generate maze
             elif event.ui_element == generate_maze_button:
                 iterativeBacktracking(lambda: gridObj.draw(), gridObj, True)
+                print("Generate maze button pressed")
+            elif event.ui_element == generate_iterative_loops_maze_button:
+                iterativeBacktrackingWithLoops(lambda: gridObj.draw(), gridObj, True)
                 print("Generate maze button pressed")
             # value iteration
             elif event.ui_element == value_iteration_button:

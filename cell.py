@@ -17,6 +17,9 @@ class Cell:
     def getPos(self):
         return self.row, self.col
     
+    def isOpen(self):
+        return self.state == 0
+
     def isWall(self):
         return self.state == 1
 
