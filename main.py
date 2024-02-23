@@ -1,10 +1,8 @@
 from grid import Grid
-from searchAlgos import AStar
+from searchAlgos import AStar, BFS
 from mazeGenerator import iterativeBacktracking
 import pygame
 import pygame_gui
-
-import cProfile
 
 pygame.init()
 
@@ -23,9 +21,10 @@ a_star_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 350
 generate_maze_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 50), (200, 50)), text='Generate Maze', manager=manager)
 value_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 450), (200, 50)), text='MDP Value Iteration', manager=manager)
 policy_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 550), (200, 50)), text='MDP Policy Iteration', manager=manager)
+clear_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 650), (200, 50)), text='Clear', manager=manager)
 
 # define the number of rows in the grid
-rows = 50
+rows = 24
 
 clock = pygame.time.Clock()
 
@@ -77,14 +76,17 @@ while isRunning:
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             # BFS
             if event.ui_element == bfs_button:
-                print("BFS button pressed")
+                if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
+                    [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
+                    BFS(lambda: gridObj.draw(), start, goal, visualiseAlgorithm, AnimatePath)
+                else:
+                    print("Please set both start and goal cells within the grid boundaries.")
             # DFS
             elif event.ui_element == dfs_button:
                 print("DFS button pressed")
             # A*
             elif event.ui_element == a_star_button:
                 print("A* button pressed")
-                print(start, goal)
                 if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
                     [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
                     AStar(lambda: gridObj.draw(), gridObj.grid, start, goal, visualiseAlgorithm, AnimatePath)
@@ -100,6 +102,10 @@ while isRunning:
             # policy iteration
             elif event.ui_element == policy_iteration_button:
                 print("MDP policy iteration button pressed")
+            elif event.ui_element == clear_button:
+                print("Clear button pressed")
+                [cell.resetOpen() for row in gridObj.grid for cell in row if (cell.state == 4 or cell.state == 5
+                            or cell.state == 6)]
 
         manager.process_events(event)
 

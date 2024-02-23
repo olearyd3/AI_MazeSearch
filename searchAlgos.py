@@ -1,5 +1,6 @@
-from queue import PriorityQueue
+from queue import Queue, PriorityQueue
 import pygame
+import time
 
 def h(position1, position2):
     """
@@ -14,14 +15,30 @@ def redrawPath(prev, current, gridDraw, AnimatePath):
     function to redraw the best path to the goal
     """
     while current in prev:
+        
         current = prev[current]
         current.setPath(AnimatePath)
     gridDraw()
+
+def constructPath(cameFrom, start, end):
+    """
+    helper function to construct the path from the 'cameFrom' dictionary
+    """
+    path = []
+    current = end
+    while current != start:
+        path.append(current)
+        current = cameFrom[current]
+    path.append(start)
+    return path[::-1] 
 
 def AStar(gridDraw, grid, start, end, visualiseAlgorithm, AnimatePath):
     """
     function to implement the A* heuristic -- differs from an algo since it uses estimates
     """
+    # start a timer
+    startTime = time.time()
+    visitedCells = set()
     # variable to count order nodes are added to openSet in
     count = 0
     openSet = PriorityQueue()
@@ -53,6 +70,8 @@ def AStar(gridDraw, grid, start, end, visualiseAlgorithm, AnimatePath):
             redrawPath(cameFrom, current, gridDraw, AnimatePath)
             end.setGoal(visualiseAlgorithm)
             start.setStart(visualiseAlgorithm)
+            elapsed_time = time.time() - startTime
+            print(f"A* Algorithm - Visited Cells: {len(visitedCells)}, Path Length: {g[end] + 1}, Elapsed Time: {elapsed_time} seconds")
             return True
         # calculate the cost from start to the current node for each of the current node's neighbours
         for neighbour in current.neighbours:
@@ -67,8 +86,58 @@ def AStar(gridDraw, grid, start, end, visualiseAlgorithm, AnimatePath):
                     openSet.put((f[neighbour], count, neighbour))
                     existingOpenSet.add(neighbour)
                     neighbour.setEdge(visualiseAlgorithm)
+                visitedCells.add(neighbour)
 
         if current != start:
             current.setClosed(visualiseAlgorithm)
     # if goal cannot be reached -- this should not occur
+    return False
+
+def BFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
+    """
+    function to implement Breadth-First Search algorithm
+    """
+    # queue for BFS
+    startTime = time.time()
+
+    queue = Queue()
+    queue.put(start)
+    # dictionary to redraw path when goal found
+    cameFrom = {}
+    # set to keep track of visited nodes
+    visited = {start}
+
+    while not queue.empty():
+        # if user quits while algo is running ensure no crashes occur
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        current = queue.get()
+        # if the goal has been reached
+        if current == end:
+            gridDraw()
+            # recolor the best path
+            redrawPath(cameFrom, current, gridDraw, AnimatePath)
+            end.setGoal(visualiseAlgorithm)
+            start.setStart(visualiseAlgorithm)
+            elapsed_time = time.time() - startTime
+            # print stats
+            print(f"BFS Algorithm - Visited Cells: {len(visited)}, Shortest Path Length: {len(constructPath(cameFrom, start, end)) if current == end else 0}, Elapsed Time: {elapsed_time} seconds")
+            return True
+        # iterate through the neighbors of the current node
+        for neighbour in current.neighbours:
+            # if the neighbour has not been visited
+            if neighbour not in visited:
+                # add neighbour to the queue and the visited list
+                queue.put(neighbour)
+                visited.add(neighbour)
+                # mark the neighbour as the current cell and visualise it
+                cameFrom[neighbour] = current
+                neighbour.setEdge(visualiseAlgorithm)
+
+        if current != start:
+            current.setClosed(visualiseAlgorithm)
+
+    # if the goal cannot be reached -- this should not occur
     return False

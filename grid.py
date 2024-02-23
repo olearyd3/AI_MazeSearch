@@ -2,7 +2,7 @@ import pygame
 from cell import Cell
 
 class Grid:
-    def __init__(self,rows, screenWidth, window):
+    def __init__(self, rows, screenWidth, window):
         self.rows = rows
         self.cellWidth = screenWidth // rows
         self.screenWidth = screenWidth
@@ -19,7 +19,6 @@ class Grid:
                 self.grid[i].append(cell)
 
     def draw(self):
-
         pygame.draw.line(self.window, (150, 150, 150), (self.screenWidth, 0),(self.screenWidth, self.screenWidth))
         pygame.display.update()
 
