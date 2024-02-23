@@ -16,7 +16,7 @@ This assignment implementing a number of search and MDP algorithms to solve a ma
 
 1. Clone the repository locally with `git clone https://github.com/olearyd3/AI_MazeSearch.git`
 
-2. Install necessary libraries with 'pip install -r requirements.txt` 
+2. Install necessary libraries with `pip install -r requirements.txt` 
 
 3. Run the code by typing `python main.py` in your terminal.
 
