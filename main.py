@@ -3,6 +3,7 @@ from searchAlgos import AStar, BFS, DFS
 from mazeGenerator import iterativeBacktracking, iterativeBacktrackingWithLoops
 import pygame
 import pygame_gui
+from markovDecisionProcesses import valueIteration
 
 pygame.init()
 
@@ -25,7 +26,7 @@ policy_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect
 clear_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 650), (200, 50)), text='Clear', manager=manager)
 
 # define the number of rows in the grid
-rows = 25
+rows = 10
 columns = rows
 
 clock = pygame.time.Clock()
@@ -46,6 +47,12 @@ isRunning = True
 
 # set the background to white
 #window.blit(background, (0, 0))
+
+reward_free = -1
+reward_obstacle = -100
+reward_goal = 100
+gamma = 0.99  # Discount factor
+theta = 0.1  # Convergence threshold
 
 # while the app is active
 while isRunning:
@@ -108,6 +115,10 @@ while isRunning:
             # value iteration
             elif event.ui_element == value_iteration_button:
                 print("MDP value iteration button pressed")
+                if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
+                    [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
+                    policy = valueIteration(lambda: gridObj.draw(), gridObj, start, goal, visualiseAlgorithm, AnimatePath)
+                #print("Optimal Policy:", policy)
             # policy iteration
             elif event.ui_element == policy_iteration_button:
                 print("MDP policy iteration button pressed")

@@ -15,7 +15,6 @@ def redrawPath(prev, current, gridDraw, AnimatePath):
     function to redraw the best path to the goal
     """
     while current in prev:
-        
         current = prev[current]
         current.setPath(AnimatePath)
     gridDraw()
@@ -148,7 +147,7 @@ def DFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
     """
     # stack for DFS
     startTime = time.time()
-
+    print("start:", f"({start.x}, {start.y}), Goal: ({end.x}, {end.y})")
     stack = LifoQueue()
     stack.put(start)
     # dictionary to redraw path when goal found
