@@ -3,7 +3,7 @@ from searchAlgos import AStar, BFS, DFS
 from mazeGenerator import iterativeBacktracking, iterativeBacktrackingWithLoops
 import pygame
 import pygame_gui
-from markovDecisionProcesses import valueIteration
+from markovDecisionProcesses import valueIteration, policyIteration
 
 pygame.init()
 
@@ -16,17 +16,49 @@ background.fill(pygame.Color(255, 255, 255))
 manager = pygame_gui.UIManager((1200, 700))
 
 # set up buttons in the GUI
-bfs_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 150), (200, 50)), text='BFS', manager=manager)
-dfs_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 250), (200, 50)), text='DFS', manager=manager)
-a_star_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 350), (200, 50)), text='A*', manager=manager)
-generate_iterative_loops_maze_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 100), (200, 50)), text='Generate Maze with Looping', manager=manager)
-generate_maze_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 50), (200, 50)), text='Generate Maze', manager=manager)
-value_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 450), (200, 50)), text='MDP Value Iteration', manager=manager)
-policy_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 550), (200, 50)), text='MDP Policy Iteration', manager=manager)
-clear_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((950, 650), (200, 50)), text='Clear', manager=manager)
+bfs_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((725, 250), (200, 50)), text='BFS', manager=manager)
+dfs_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((975, 250), (200, 50)), text='DFS', manager=manager)
+a_star_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((850, 325), (200, 50)), text='A*', manager=manager)
+generate_iterative_loops_maze_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((725, 175), (200, 50)), text='Generate Maze w/Loops', manager=manager)
+generate_maze_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((975, 175), (200, 50)), text='Generate Maze', manager=manager)
+value_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((725, 400), (200, 50)), text='MDP Value Iteration', manager=manager)
+policy_iteration_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((975, 400), (200, 50)), text='MDP Policy Iteration', manager=manager)
+clear_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((850, 475), (200, 50)), text='Clear Solution', manager=manager)
+
+# label_rect = pygame.Rect((50, 50), (1500, 50))
+# label = pygame_gui.elements.UILabel(relative_rect=label_rect, text='Artificial Intelligence - Assignment 1!', manager=manager)
+numVisitedCells = 0
+shortestPathLength = 0
+elapsedTime = 0
+
+maze_size_options = ["10x10", "20x20", "50x50", "100x100"]
+maze_size_dropdown = pygame_gui.elements.UIDropDownMenu(
+    options_list=maze_size_options,
+    starting_option=maze_size_options[1],  # Default option
+    relative_rect=pygame.Rect((850, 50), (200, 50)),
+    manager=manager
+)
+
+visited_cells_label = pygame_gui.elements.UILabel(
+    relative_rect=pygame.Rect((800, 525), (300, 50)),
+    text=f'Number of cells visited: {numVisitedCells}',
+    manager=manager
+)
+
+path_length_label = pygame_gui.elements.UILabel(
+    relative_rect=pygame.Rect((800, 550), (300, 50)),
+    text=f'Length of Path: {shortestPathLength}',
+    manager=manager
+)
+
+time_taken_label = pygame_gui.elements.UILabel(
+    relative_rect=pygame.Rect((800, 575), (300, 50)),
+    text=f'Time taken in seconds: {elapsedTime}',
+    manager=manager
+)
 
 # define the number of rows in the grid
-rows = 10
+rows = 20
 columns = rows
 
 clock = pygame.time.Clock()
@@ -53,6 +85,9 @@ reward_obstacle = -100
 reward_goal = 100
 gamma = 0.99  # Discount factor
 theta = 0.1  # Convergence threshold
+
+title_font = pygame.font.Font(None, 36)  # You can customize the font and size here
+title_text = title_font.render('Maze Generator', True, (0, 0, 0))
 
 # while the app is active
 while isRunning:
@@ -81,20 +116,51 @@ while isRunning:
                     goal = gridObj.grid[goal_row][goal_col]
                     goal.setGoal()
                     print("Goal cell set to:", goal.getPos())
+        if event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
+            selected_option = event.text
+            # Set rows based on the selected maze size
+            if selected_option == "10x10":
+                rows = 10
+            elif selected_option == "20x20":
+                rows = 20
+            elif selected_option == "50x50":
+                rows = 50
+            elif selected_option == "100x100":
+                rows = 100
+            columns = rows
+
+            start = None
+            goal = None
+
+            [cell.resetOpen() for row in gridObj.grid for cell in row if (cell.state == 4 or cell.state == 5
+                        or cell.state == 6)]
+
+            gridObj = Grid(rows, columns, width, window)
+            gridObj.createGrid()
          # if the button is pressed: 
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             # BFS
             if event.ui_element == bfs_button:
                 if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
                     [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
-                    BFS(lambda: gridObj.draw(), start, goal, visualiseAlgorithm, AnimatePath)
+                    numVisitedCells, shortestPathLength, elapsedTime = BFS(lambda: gridObj.draw(), start, goal, visualiseAlgorithm, AnimatePath, visited_cells_label, path_length_label, time_taken_label)
+                    text_area_rect = pygame.Rect(800, 525, 300, 150)
+                    pygame.draw.rect(window, (0, 0, 0), text_area_rect)
+                    visited_cells_label.set_text(f'Number of visited cells: {numVisitedCells}')
+                    path_length_label.set_text(f'Length of Path: {shortestPathLength}')
+                    time_taken_label.set_text(f'Elapsed time: {elapsedTime} seconds')
                 else:
                     print("Please set both start and goal cells within the grid boundaries.")
             # DFS
             if event.ui_element == dfs_button:
                 if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
                     [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
-                    DFS(lambda: gridObj.draw(), start, goal, visualiseAlgorithm, AnimatePath)
+                    numVisitedCells, shortestPathLength, elapsedTime = DFS(lambda: gridObj.draw(), start, goal, visualiseAlgorithm, AnimatePath, visited_cells_label, path_length_label, time_taken_label)
+                    text_area_rect = pygame.Rect(800, 525, 300, 150)
+                    pygame.draw.rect(window, (0, 0, 0), text_area_rect)
+                    visited_cells_label.set_text(f'Number of visited cells: {numVisitedCells}')
+                    path_length_label.set_text(f'Length of Path: {shortestPathLength}')
+                    time_taken_label.set_text(f'Elapsed time: {elapsedTime} seconds')
                 else:
                     print("Please set both start and goal cells within the grid boundaries.")
             # A*
@@ -102,7 +168,12 @@ while isRunning:
                 print("A* button pressed")
                 if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
                     [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
-                    AStar(lambda: gridObj.draw(), gridObj.grid, start, goal, visualiseAlgorithm, AnimatePath)
+                    numVisitedCells, shortestPathLength, elapsedTime = AStar(lambda: gridObj.draw(), gridObj.grid, start, goal, visualiseAlgorithm, AnimatePath, visited_cells_label, path_length_label, time_taken_label)
+                    text_area_rect = pygame.Rect(800, 525, 300, 150)
+                    pygame.draw.rect(window, (0, 0, 0), text_area_rect)
+                    visited_cells_label.set_text(f'Number of visited cells: {numVisitedCells}')
+                    path_length_label.set_text(f'Length of Path: {shortestPathLength}')
+                    time_taken_label.set_text(f'Elapsed time: {elapsedTime} seconds')
                 else:
                     print("Please set both start and goal cells within the grid boundaries.")
             # generate maze
@@ -111,23 +182,40 @@ while isRunning:
                 print("Generate maze button pressed")
             elif event.ui_element == generate_iterative_loops_maze_button:
                 iterativeBacktrackingWithLoops(lambda: gridObj.draw(), gridObj, True)
-                print("Generate maze button pressed")
+                print("Generate maze with loops button pressed")
             # value iteration
             elif event.ui_element == value_iteration_button:
                 print("MDP value iteration button pressed")
                 if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
                     [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
-                    policy = valueIteration(lambda: gridObj.draw(), gridObj, start, goal, visualiseAlgorithm, AnimatePath)
-                #print("Optimal Policy:", policy)
+                    policy, pathLength, numIterations, elapsedTime = valueIteration(lambda: gridObj.draw(), gridObj, start, goal, visualiseAlgorithm, AnimatePath)
+                    text_area_rect = pygame.Rect(800, 525, 300, 150)
+                    pygame.draw.rect(window, (0, 0, 0), text_area_rect)
+                    visited_cells_label.set_text(f'Number of iterations: {numIterations}')
+                    path_length_label.set_text(f'Length of Path: {pathLength}')
+                    time_taken_label.set_text(f'Elapsed time: {elapsedTime} seconds')
             # policy iteration
             elif event.ui_element == policy_iteration_button:
                 print("MDP policy iteration button pressed")
+                if start is not None and goal is not None and 0 <= start_row < rows and 0 <= start_col < rows and 0 <= goal_row < rows and 0 <= goal_col < rows:
+                    [cell.updateNeighbours(gridObj.grid) for row in gridObj.grid for cell in row]
+                    policy, pathLength, numIterations, elapsedTime = policyIteration(lambda: gridObj.draw(), gridObj, start, goal, visualiseAlgorithm, AnimatePath)
+                    text_area_rect = pygame.Rect(800, 525, 300, 150)
+                    pygame.draw.rect(window, (0, 0, 0), text_area_rect)
+                    visited_cells_label.set_text(f'Number of iterations: {numIterations}')
+                    path_length_label.set_text(f'Length of Path: {pathLength}')
+                    time_taken_label.set_text(f'Elapsed time: {elapsedTime} seconds')
             elif event.ui_element == clear_button:
+                numVisitedCells = 0
+                shortestPathLength = 0
+                elapsedTime = 0
                 print("Clear button pressed")
                 [cell.resetOpen() for row in gridObj.grid for cell in row if (cell.state == 4 or cell.state == 5
                             or cell.state == 6)]
 
         manager.process_events(event)
+
+    window.blit(title_text, (800, 10))
 
     manager.update(time)
     manager.draw_ui(window)

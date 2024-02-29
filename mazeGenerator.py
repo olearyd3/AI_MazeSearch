@@ -42,8 +42,8 @@ def iterativeBacktracking(gridDraw, grid, visualise):
 
     [cell.resetWall() for row in grid.grid for cell in row]
     gridDraw()
-    i = choice(range(2, grid.rows - 2))
-    j = choice(range(2, grid.rows - 2))
+    i = choice(range(1, grid.rows - 2))
+    j = choice(range(1, grid.rows - 2))
     current = grid.grid[i][j]
     current.setOpen(visualise)
     Q.put(current)
@@ -94,8 +94,8 @@ def iterativeBacktrackingWithLoops(gridDraw, grid, visualise):
 
     [cell.resetWall() for row in grid.grid for cell in row]
     gridDraw()
-    i = choice(range(2, grid.rows - 2))
-    j = choice(range(2, grid.rows - 2))
+    i = choice(range(1, grid.rows - 2))
+    j = choice(range(1, grid.rows - 2))
     current = grid.grid[i][j]
     current.setOpen(visualise)
     Q.put(current)

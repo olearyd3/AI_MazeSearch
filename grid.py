@@ -20,7 +20,7 @@ class Grid:
                 self.grid[i].append(cell)
 
     def draw(self):
-        pygame.draw.line(self.window, (150, 150, 150), (self.screenWidth, 0),(self.screenWidth, self.screenWidth))
+        #pygame.draw.line(self.window, (150, 150, 150), (self.screenWidth, 0),(self.screenWidth, self.screenWidth))
         pygame.display.update()
 
     def getCellIndex(self, mousePosition):

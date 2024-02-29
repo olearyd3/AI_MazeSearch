@@ -31,7 +31,7 @@ def constructPath(cameFrom, start, end):
     path.append(start)
     return path[::-1] 
 
-def AStar(gridDraw, grid, start, end, visualiseAlgorithm, AnimatePath):
+def AStar(gridDraw, grid, start, end, visualiseAlgorithm, AnimatePath, visited_cells_label, path_length_label, time_taken_label):
     """
     function to implement the A* heuristic -- differs from an algo since it uses estimates
     """
@@ -70,8 +70,11 @@ def AStar(gridDraw, grid, start, end, visualiseAlgorithm, AnimatePath):
             end.setGoal(visualiseAlgorithm)
             start.setStart(visualiseAlgorithm)
             elapsed_time = time.time() - startTime
+            numVisitedCells = len(visitedCells)
+            shortestPathLength = g[end] + 1
+            elapsedTime = elapsed_time
             print(f"A* Algorithm - Visited Cells: {len(visitedCells)}, Path Length: {g[end] + 1}, Elapsed Time: {elapsed_time} seconds")
-            return True
+            return numVisitedCells, shortestPathLength, elapsedTime
         # calculate the cost from start to the current node for each of the current node's neighbours
         for neighbour in current.neighbours:
             gNew = g[current] + 1
@@ -90,9 +93,9 @@ def AStar(gridDraw, grid, start, end, visualiseAlgorithm, AnimatePath):
         if current != start:
             current.setClosed(visualiseAlgorithm)
     # if goal cannot be reached -- this should not occur
-    return False
+    return 0, 0, 0
 
-def BFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
+def BFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath, visited_cells_label, path_length_label, time_taken_label):
     """
     function to implement Breadth-First Search algorithm
     """
@@ -123,7 +126,10 @@ def BFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
             elapsed_time = time.time() - startTime
             # print stats
             print(f"BFS Algorithm - Visited Cells: {len(visited)}, Shortest Path Length: {len(constructPath(cameFrom, start, end)) if current == end else 0}, Elapsed Time: {elapsed_time} seconds")
-            return True
+            visited_cells_label.set_text(f'Visited Cells: {len(visited)}')
+            path_length_label.set_text(f'Path Length: {len(constructPath(cameFrom, start, end)) if current == end else 0}')
+            time_taken_label.set_text(f'Elapsed Time: {elapsed_time} seconds')
+            return len(visited), len(constructPath(cameFrom, start, end)) if current == end else 0, elapsed_time
         # iterate through the neighbors of the current node
         for neighbour in current.neighbours:
             # if the neighbour has not been visited
@@ -139,9 +145,9 @@ def BFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
             current.setClosed(visualiseAlgorithm)
 
     # if the goal cannot be reached -- this should not occur
-    return False
+    return 0, 0, 0
 
-def DFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
+def DFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath, visited_cells_label, path_length_label, time_taken_label):
     """
     function to implement Depth-First Search algorithm
     """
@@ -172,7 +178,10 @@ def DFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
             elapsed_time = time.time() - startTime
             # print stats
             print(f"DFS Algorithm - Visited Cells: {len(visited)}, Shortest Path Length: {len(constructPath(cameFrom, start, end)) if current == end else 0}, Elapsed Time: {elapsed_time} seconds")
-            return True
+            visited_cells_label.set_text(f'Visited Cells: {len(visited)}')
+            path_length_label.set_text(f'Path Length: {len(constructPath(cameFrom, start, end)) if current == end else 0}')
+            time_taken_label.set_text(f'Elapsed Time: {elapsed_time} seconds')              
+            return len(visited), len(constructPath(cameFrom, start, end)) if current == end else 0, elapsed_time
         # iterate through the neighbors of the current node
         for neighbour in current.neighbours:
             # if the neighbour has not been visited
@@ -188,4 +197,4 @@ def DFS(gridDraw, start, end, visualiseAlgorithm, AnimatePath):
             current.setClosed(visualiseAlgorithm)
 
     # if the goal cannot be reached -- this should not occur
-    return False
+    return 0, 0, 0
