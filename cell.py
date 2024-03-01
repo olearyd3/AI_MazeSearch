@@ -1,7 +1,9 @@
 import pygame
 
 class Cell:
-    """Defines the cell which would make up the grid"""
+    """
+    cell properties
+    """
     def __init__(self, row, col, width, totalRows, window):
         self.row = row 
         self.col = col
@@ -68,7 +70,6 @@ class Cell:
         self.color = (83, 128, 100)
         self.draw(pathVis)
 
-    # function to draw a rectangle
     def draw(self, vis):
         pygame.draw.rect(self.window, self.color, (self.x, self.y, self.width, self.width))
         if vis:

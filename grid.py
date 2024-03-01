@@ -2,6 +2,9 @@ import pygame
 from cell import Cell
 
 class Grid:
+    """
+    grid properties
+    """
     def __init__(self, rows, columns, screenWidth, window):
         self.rows = rows
         self.columns = columns 
@@ -11,7 +14,9 @@ class Grid:
         self.grid = []
 
     def createGrid(self):
-        """Create the grid of size rows"""
+        """
+        function to create the grid
+        """
         for i in range(self.rows):
             self.grid.append([])
             for j in range(self.columns):
@@ -33,7 +38,9 @@ class Grid:
 
         return row, col
     def connect_cells(self, cell1, cell2):
-        """Connect two cells by marking them as open"""
+        """
+        function for connecting two cells together by marking both as open 
+        """
         row1, col1 = cell1.getPos()
         row2, col2 = cell2.getPos()
 
