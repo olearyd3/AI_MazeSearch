@@ -2,7 +2,6 @@
 
 This assignment implementing a number of search and MDP algorithms to solve a maze.
 
-
 ### Assignment Specification: 
 
 1. Implement a maze generator in Python, capable of generating mazes of varying sizes.
