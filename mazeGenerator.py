@@ -26,7 +26,7 @@ def isNeighbour(grid, current, distance):
         current.neighbours.append(grid.grid[row][column + distance])
     
 
-def iterativeBacktracking(gridDraw, grid, visualise):
+def backtracker(gridDraw, grid, visualise):
     """ 
     choose the initial cell, mark it as visited and push it to the stack
     while the stack is not empty
@@ -42,8 +42,8 @@ def iterativeBacktracking(gridDraw, grid, visualise):
 
     [cell.resetWall() for row in grid.grid for cell in row]
     gridDraw()
-    i = choice(range(1, grid.rows - 2))
-    j = choice(range(1, grid.rows - 2))
+    i = choice(range(grid.rows))
+    j = choice(range(grid.columns))
     current = grid.grid[i][j]
     current.setOpen(visualise)
     Q.put(current)
@@ -78,7 +78,7 @@ def iterativeBacktracking(gridDraw, grid, visualise):
             Q.put(neighbour)
     return
 
-def iterativeBacktrackingWithLoops(gridDraw, grid, visualise):
+def backtrackerWithLoops(gridDraw, grid, visualise):
     """ 
     choose the initial cell, mark it as visited and push it to the stack
     while the stack is not empty
@@ -94,8 +94,8 @@ def iterativeBacktrackingWithLoops(gridDraw, grid, visualise):
 
     [cell.resetWall() for row in grid.grid for cell in row]
     gridDraw()
-    i = choice(range(1, grid.rows - 2))
-    j = choice(range(1, grid.rows - 2))
+    i = choice(range(grid.rows))
+    j = choice(range(grid.columns))
     current = grid.grid[i][j]
     current.setOpen(visualise)
     Q.put(current)

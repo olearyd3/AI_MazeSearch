@@ -14,7 +14,7 @@ class Grid:
         """Create the grid of size rows"""
         for i in range(self.rows):
             self.grid.append([])
-            for j in range(self.rows):
+            for j in range(self.columns):
                 cell = Cell(i, j, self.cellWidth, self.rows, self.window)
                 cell.resetOpen()
                 self.grid[i].append(cell)

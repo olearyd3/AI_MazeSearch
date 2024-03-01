@@ -19,8 +19,10 @@ def redrawOptimalPath(grid, policy, start, goal, gridDraw, AnimatePath):
     start.setStart(True)
     return pathLength + 1
 
-# define the transition model and reward function
 def transition_model(grid, cell, action):
+    """
+    function for the transition model to determine moves based on the actions
+    """
     # get the current cell position
     col, row = cell.getPos()
     # move based on the action
@@ -39,14 +41,14 @@ def transition_model(grid, cell, action):
         # otherwise stay put
         return cell
 
-def valueIteration(gridDraw, grid, start, goal, visualiseAlgorithm, AnimatePath):
+def valueIteration(gridDraw, grid, start, goal, AnimatePath):
     """
     function to implement the MDP value iteration
     """
     # initialise reward values
     startTime = time.time()
-    reward_goal = 100
-    reward_obstacle = -5
+    reward_goal = 100000
+    reward_obstacle = -100
     reward_free = 0.1
     # set all values to 0 initially and have no policy for any cell
     values = {cell: 0 for row in grid.grid for cell in row}
@@ -66,7 +68,7 @@ def valueIteration(gridDraw, grid, start, goal, visualiseAlgorithm, AnimatePath)
         else:
             return reward_free
 
-    # convergence value and gamma
+    # convergence value and discount factor
     convergence_threshold = 0.01
     gamma = 0.99
     counter = 0
@@ -124,10 +126,10 @@ def valueIteration(gridDraw, grid, start, goal, visualiseAlgorithm, AnimatePath)
 
     return policy, pathLength, counter, elapsed_time
 
-def policyIteration(gridDraw, grid, start, goal, visualiseAlgorithm, AnimatePath):
+def policyIteration(gridDraw, grid, start, goal, AnimatePath):
     # initialize reward values
-    reward_goal = 100
-    reward_obstacle = -5
+    reward_goal = 100000
+    reward_obstacle = -100
     reward_free = 0.1
     startTime = time.time()
     # set all inital policies to empty
@@ -141,9 +143,9 @@ def policyIteration(gridDraw, grid, start, goal, visualiseAlgorithm, AnimatePath
         else:
             return reward_free
 
-    # convergence value and gamma
-    convergence_threshold = 0.5
-    gamma = 0.9
+    # convergence value and discount factor
+    convergence_threshold = 0.01
+    gamma = 0.99
     values = {cell: 0 for row in grid.grid for cell in row}
     values[goal] = reward_goal
     counter = 0
@@ -171,7 +173,6 @@ def policyIteration(gridDraw, grid, start, goal, visualiseAlgorithm, AnimatePath
             # print(f"Delta: {delta}")
 
             if delta < convergence_threshold:
-                # print("ASKJFMHKASFHJHASJKFHAKJHOASOAOSHIHPASHPIAHIPSH")
                 break
 
         # policy improvement
