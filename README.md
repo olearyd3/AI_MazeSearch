@@ -28,3 +28,7 @@ Once the maze has generated, click any two cells on the maze. The first will be 
 Select one of the five buttons: 'BFS', 'DFS', 'A*', 'MDP Value Iteration' or 'MDP Policy Iteration' to solve the maze using the selected algorithm. The stats of the algorithm will be displayed in the bottom right section of the GUI. 
 
 To run a different algorithm on the same maze with the same start and end goal, simply select 'Clear solution' and then select the new algorithm.
+
+### Demo
+
+Here is the link to a YouTube demo of the code being run: https://www.youtube.com/watch?v=t7Vgkj2GBIo
